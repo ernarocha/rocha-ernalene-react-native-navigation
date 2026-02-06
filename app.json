@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "er",
-    "slug": "er",
+    "name": "rocha-ernalene-react-native-navigation",
+    "slug": "rocha-ernalene-react-native-navigation",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
