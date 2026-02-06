@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useNavigation, StackActions } from '@react-navigation/native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation, StackActions, CommonActions } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCart } from '../../contexts/CartContext';
@@ -15,73 +15,41 @@ export const CheckoutScreen: React.FC = () => {
   const navigation = useNavigation<Props['navigation']>();
   const styles = createStyles(colors);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderTotal, setOrderTotal] = useState(0);
-  const [orderItemCount, setOrderItemCount] = useState(0);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
   const handlePlaceOrder = () => {
-    setOrderTotal(selectedTotal);
-    setOrderItemCount(selectedItems.reduce((sum, item) => sum + item.quantity, 0));
+    const total = selectedTotal;
+    const itemCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
 
     selectedItems.forEach((item) => {
       removeFromCart(item.product.id);
     });
 
     setOrderPlaced(true);
-  };
 
-  const handleContinueShopping = () => {
-    navigation.dispatch(StackActions.popToTop());
+    Alert.alert(
+      'Order Placed!',
+      `Thank you for your purchase of ${itemCount} item${itemCount !== 1 ? 's' : ''} totaling ${formatCurrency(total)}. Your order has been confirmed.`,
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.dispatch(StackActions.popToTop());
+            navigation.dispatch(
+              CommonActions.navigate({ name: 'Main', params: { screen: 'Home' } })
+            );
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   if (orderPlaced) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.successStepsContainer}>
-          <View style={styles.step}>
-            <View style={[styles.stepCircle, styles.stepCircleCompleted]}>
-              <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-            </View>
-            <Text style={[styles.stepLabel, styles.stepLabelActive]}>Bag</Text>
-          </View>
-          <View style={[styles.stepLine, styles.stepLineActive]} />
-          <View style={styles.step}>
-            <View style={[styles.stepCircle, styles.stepCircleCompleted]}>
-              <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-            </View>
-            <Text style={[styles.stepLabel, styles.stepLabelActive]}>Review</Text>
-          </View>
-          <View style={[styles.stepLine, styles.stepLineActive]} />
-          <View style={styles.step}>
-            <View style={[styles.stepCircle, styles.stepCircleCompleted]}>
-              <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-            </View>
-            <Text style={[styles.stepLabel, styles.stepLabelActive]}>Done</Text>
-          </View>
-        </View>
-
-        <View style={styles.successContainer}>
-          <View style={styles.successIconContainer}>
-            <Ionicons name="checkmark-circle" size={80} color={colors.success} />
-          </View>
-          <Text style={styles.successTitle}>Order Placed!</Text>
-          <Text style={styles.successSubtitle}>
-            Thank you for your purchase. Your order has been confirmed.
-          </Text>
-          <Text style={styles.successTotal}>{formatCurrency(orderTotal)}</Text>
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinueShopping}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.continueButtonText}>Continue Shopping</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+    return <View style={[styles.container, { backgroundColor: colors.background }]} />;
   }
 
   return (
@@ -97,29 +65,6 @@ export const CheckoutScreen: React.FC = () => {
         <View style={styles.headerContent}>
           <Text style={styles.title}>Checkout</Text>
           <Text style={styles.subtitle}>Review your order</Text>
-        </View>
-      </View>
-
-      <View style={styles.stepsContainer}>
-        <View style={styles.step}>
-          <View style={[styles.stepCircle, styles.stepCircleCompleted]}>
-            <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-          </View>
-          <Text style={[styles.stepLabel, styles.stepLabelActive]}>Bag</Text>
-        </View>
-        <View style={[styles.stepLine, styles.stepLineActive]} />
-        <View style={styles.step}>
-          <View style={[styles.stepCircle, styles.stepCircleActive]}>
-            <Text style={[styles.stepNumber, styles.stepNumberActive]}>2</Text>
-          </View>
-          <Text style={[styles.stepLabel, styles.stepLabelActive]}>Review</Text>
-        </View>
-        <View style={styles.stepLine} />
-        <View style={styles.step}>
-          <View style={styles.stepCircle}>
-            <Text style={styles.stepNumber}>3</Text>
-          </View>
-          <Text style={styles.stepLabel}>Done</Text>
         </View>
       </View>
 

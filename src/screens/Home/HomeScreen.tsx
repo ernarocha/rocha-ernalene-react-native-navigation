@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCart } from '../../contexts/CartContext';
 import { PRODUCTS } from '../../constants/products';
@@ -19,6 +19,13 @@ export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<Props['navigation']>();
   const styles = createStyles(colors);
   const [activeCategory, setActiveCategory] = useState('All');
+  const flatListRef = useRef<FlatList>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+    }, [])
+  );
 
   const filteredProducts = activeCategory === 'All'
     ? PRODUCTS
@@ -56,6 +63,7 @@ export const HomeScreen: React.FC = () => {
       </View>
 
       <FlatList
+        ref={flatListRef}
         data={filteredProducts}
         keyExtractor={(item) => item.id}
         numColumns={2}
